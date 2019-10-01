@@ -1,0 +1,34 @@
+---
+- hosts: all
+  vars_files:
+    - vault.yaml
+    - virt_vms_list.yml
+  vars:
+   helper_name: ocp4-aHelper
+   vgname: virtual_machines_vg
+   helper_volume: helper_vol
+   helper_domain: ocp4-aHelper
+  tasks:
+   - name: Copy kickstart
+     copy:
+      src: helper-ks.cfg
+      dest: /tmp/helper-ks.cfg
+   - name: List all VMs
+     virt:
+       command: list_vms
+     register: all_vms
+   - name: Create logical volume
+     lvol:
+      vg: '{{ vgname }}'
+      lv: '{{ helper_volume }}'
+      size: 30g   
+   - name: Create & run helper VM
+     #OK#command: virt-install --name "{{ helper_domain }}" --vcpus 2 --ram 4096 --disk vol={{ vgname }}/{{ helper_volume }},bus=virtio --os-variant rhel7.6 --network network=openshift4,model=virtio --location /var/lib/libvirt/images/rhel-server-7.7-x86_64-dvd.iso  --noautoconsole --check all=off  
+     #command: virt-install --name "{{ helper_domain }}" --vcpus 2 --ram 4096 --disk vol={{ vgname }}/{{ helper_volume }},bus=virtio --os-variant rhel8.0 --network network=openshift4,model=virtio --boot menu=on --location /var/lib/libvirt/images/rhel-8.0-x86_64-dvd.iso --noautoconsole --check all=off --extra-args ro
+     command: virt-install --name "{{ helper_domain }}" --vcpus 2 --ram 4096 --disk vol={{ vgname }}/{{ helper_volume }},bus=virtio --os-variant rhel8.0 --network network=openshift4,model=virtio --boot menu=on --location /var/lib/libvirt/images/rhel-8.0-x86_64-dvd.iso --initrd-inject /tmp/helper-ks.cfg --extra-args "inst.ks=file:/helper-ks.cfg ro" --noautoconsole --check all=off
+     when: " helper_domain not in all_vms.list_vms"
+   - name: List all VMs
+     virt:
+       command: list_vms
+ 
+

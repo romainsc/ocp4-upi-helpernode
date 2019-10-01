@@ -1,0 +1,28 @@
+---
+- hosts: all
+  vars_files:
+    - vault.yaml
+    - virt_vms_list.yml
+  vars:
+   vgname: virtual_machines_vg
+  tasks:
+   - name: List all VMs
+     virt:
+       command: list_vms
+     register: all_vms
+   - name: Create logical volume
+     lvol:
+      vg: '{{ vgname }}'
+      lv: '{{ item.name }}_vol'
+      size: "{{ item.disk_size }}"   
+     with_items: "{{ vms }}"
+   - name: Define ocp cluster VMs
+     virt:
+      command: define
+      xml: "{{ lookup('template', 'ocp_domain_template.xml.j2') }}" 
+     with_items: "{{ vms }}"
+   - name: List all VMs
+     virt:
+       command: list_vms
+ 
+

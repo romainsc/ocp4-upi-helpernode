@@ -1,0 +1,16 @@
+---
+- hosts: all
+  vars_files:
+    - vault.yaml
+    - virt_vms_list.yml
+  vars:
+    stpool: virtual_machines_vg
+  tasks:
+   - name: List all VMs
+     virt:
+       command: list_vms
+     register: all_vms
+   - shell: "echo {{ item }}"
+     with_items: '{{ vms }}'
+     register: echo
+

@@ -1,0 +1,32 @@
+---
+- hosts: all
+  vars_files:
+    - vault.yaml
+  vars:
+    vgname: virtual_machines_vg
+    pvname: virtual_machines_pv
+  tasks:
+   - name: Create Volume Group
+     lvg:
+       vg: '{{ vgname }}'
+       pvs: "/dev/md/{{ pvname }}"
+   - name: Get pool info
+     virt_pool:
+       command: list_pools
+   - name: Create the vg
+     virt_pool:
+       command: define
+       name: '{{ vgname }}'
+       xml: '{{ lookup("template", "lvpool.xml.j2") }}'
+   - name: Ensure autostarted
+     virt_pool:
+       autostart: yes
+       name: '{{ vgname }}'
+   - name: Start it
+     virt_pool:
+       command: create
+       name: '{{ vgname }}'
+   - name: Get pool info
+     virt_pool:
+       command: list_pools
+

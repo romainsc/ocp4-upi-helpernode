@@ -1,0 +1,24 @@
+---
+- hosts: all
+  vars_files:
+    - vault.yaml
+  vars:
+    netname: openshift4
+  tasks:
+   - name: Create the network
+     virt_net:
+       command: define
+       name: '{{ netname }}'
+       xml: '{{ lookup("template", "net.xml.j2") }}'
+   - name: Ensure autostarted
+     virt_net:
+       autostart: yes
+       name: '{{ netname }}'
+   - name: Start it
+     virt_net:
+       command: create
+       name: '{{ netname }}'
+   - name: Get list of nets
+     virt_net:
+       command: list_nets
+

@@ -1,0 +1,43 @@
+---
+vms:
+  - name: bastion
+    maxmemory: 16
+    memory: 8
+    vcpu: 4
+    disk_size: 120g
+  - name: control1
+    maxmemory: 16
+    memory: 8
+    vcpu: 4
+    disk_size: 120g
+  - name: control2
+    maxmemory: 16
+    memory: 8
+    vcpu: 4
+    disk_size: 120g
+  - name: control3
+    maxmemory: 16
+    memory: 8
+    vcpu: 4
+    disk_size: 120g
+  - name: compute1
+    maxmemory: 8
+    memory: 2
+    vcpu: 2
+    disk_size: 120g
+  - name: compute2
+    maxmemory: 8
+    memory: 2
+    vcpu: 2
+    disk_size: 120g
+  - name: compute3
+    maxmemory: 8
+    memory: 2
+    vcpu: 2
+    disk_size: 120g
+  - name: bootstrap
+    maxmemory: 16
+    memory: 8
+    vcpu: 4
+    disk_size: 120g
+
