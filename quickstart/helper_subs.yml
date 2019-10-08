@@ -1,0 +1,41 @@
+---
+- hosts: "helper.hetzner001.servideo.org"
+  vars_files:
+    - vault.yaml
+    - virt_vms_list.yml
+  tasks:
+   - name: Register helper
+     redhat_subscription:
+      state: present
+      username: "{{ redhat_portal_username }}"
+      password: "{{ redhat_portal_password }}"
+      pool: '^(Red Hat Enterprise Linux for x86_64|Red Hat Ansible Engine|Red Hat OpenShift Container Platform)'
+   - name: Enable ansible repo
+     rhsm_repository:
+      name: ansible-2.8-for-rhel-8-x86_64-rpms
+      state: enabled
+   - name: Enable RHEL baseOS repo
+     rhsm_repository:
+      name: rhel-8-for-x86_64-baseos-rpms
+      state: enabled
+   - name: Enable RHEL Appstream repo
+     rhsm_repository:
+      name: rhel-8-for-x86_64-appstream-rpms
+      state: enabled
+   - name: Enable RHEL Supplementary repo
+     rhsm_repository:
+      name: rhel-8-for-x86_64-supplementary-rpms
+      state: enabled
+   - name: Enable OCP 4.1 repo
+     rhsm_repository:
+      name: rhocp-4.1-for-rhel-8-x86_64-rpms
+      state: enabled
+   - name: Upgrade all packages
+     dnf:
+      name: '*'
+      state: latest
+   - name: Install Ansible
+     dnf:
+      name: ansible
+      state: present
+
