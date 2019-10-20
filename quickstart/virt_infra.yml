@@ -1,0 +1,7 @@
+- import_playbook: virt_net.yml
+- import_playbook: virt_pool.yml
+- import_playbook: virt_helper.yml
+- import_playbook: helper_subs.yml
+- import_playbook: virt_vms.yml
+- import_playbook: virt_insight_register.yml
+
