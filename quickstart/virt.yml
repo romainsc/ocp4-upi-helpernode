@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: host
   vars_files:
     - vault.yaml
     - virt_vms_list.yml
@@ -10,7 +10,27 @@
      virt:
        command: list_vms
      register: all_vms
-   - shell: "echo {{ item }}"
-     with_items: '{{ vms }}'
-     register: echo
+   - name: get vms info
+     virt:
+       name: "{{ item }}"
+       command: get_xml
+     with_items: "{{ all_vms['list_vms'] }}"
+     register: all_vms_xml
+   - name: get mac address
+     xml:
+       xmlstring: "{{ item['get_xml'] }}"
+       xpath: /domain/devices/interface/mac
+       content: attribute
+     with_items: "{{ all_vms_xml['results'] }}"
+     register: mac_addresses_results
+   - name: init the mac addresses list
+     set_fact:
+       mac_addresses: []
+   - name: create the mac addresses list
+     set_fact:
+       mac_addresses: "{{ mac_addresses + [item['matches'][0]['mac']['address']] }}"
+     with_items: "{{ mac_addresses_results['results'] }}"
+   - debug:
+       var: mac_addresses
+
 
