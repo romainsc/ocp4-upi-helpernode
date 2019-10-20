@@ -1,9 +1,14 @@
 ---
-- hosts: "helper.hetzner001.servideo.org"
+- hosts: helper
+  gather_facts: no
   vars_files:
     - vault.yaml
     - virt_vms_list.yml
   tasks:
+   - name: Wait for system to become reachable
+     wait_for_connection:
+   - name: Gather facts
+     setup:
    - name: Register helper
      redhat_subscription:
       state: present
