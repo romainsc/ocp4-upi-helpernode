@@ -24,7 +24,7 @@
        name: '{{ vgname }}'
    - name: Start it
      virt_pool:
-       command: create
+       state: active
        name: '{{ vgname }}'
    - name: Get pool info
      virt_pool:
