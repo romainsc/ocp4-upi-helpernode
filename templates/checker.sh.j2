@@ -90,7 +90,7 @@ Quickstart Notes:
 	cp *.ign /var/www/html/ignition/
 	restorecon -vR /var/www/html/
 
-(See https://docs.openshift.com/container-platform/4.1/installing/installing_bare_metal/installing-bare-metal.html for more details)
+(See https://docs.openshift.com/container-platform/4.2/installing/installing_bare_metal/installing-bare-metal.html for more details)
 
 EOF
 }
@@ -115,11 +115,22 @@ warningsize=50
 #
 cat <<EOF
 
-An NFS server has been installed and the entire /export directory has been shared out. To create a share simply run the following command as root:
+An NFS server has been installed and the entire /export directory has been shared out. To set up the nfs-auto-provisioner; you just need to run the following command after "openshift-install wait-for bootstrap-complete --log-level debug" has finished...
 
-mkdir -m 777 -p /export/pv0001
+	$(basename $0) nfs-setup
 
-Thats it! There is no need to "share" this by modifying anything!
+Thats it! Right now, this is an "opinionated" setup (there is no "how do I set this up for..."). For now, this is what you get.
+
+Once it's setup, create a PVC for the registry (an example of one has been provided)
+
+	oc create -f /usr/local/src/registry-pvc.yaml -n openshift-image-registry
+
+Check that with "oc get pv" and "oc get pvc -n openshift-image-registry". Then set the registry to use this NFS volume.
+
+	oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"storage":{"pvc":{ "claim": "registry-pvc"}}}}'
+
+
+Check the status by watching "oc get pods -n openshift-image-registry"
 
 EOF
 #
@@ -167,6 +178,9 @@ case "$1" in
     ;;
   nfs-info)
     nfs-info
+    ;;
+  nfs-setup)
+    /usr/local/bin/nfs-provisioner-setup.sh
     ;;
   *)
     show_help
