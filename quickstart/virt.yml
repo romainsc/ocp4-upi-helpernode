@@ -2,7 +2,7 @@
 - hosts: host
   vars_files:
     - vault.yaml
-    - virt_vms_list.yml
+    - vars_template.yaml
   vars:
     stpool: virtual_machines_vg
   tasks:
@@ -30,7 +30,40 @@
      set_fact:
        mac_addresses: "{{ mac_addresses + [item['matches'][0]['mac']['address']] }}"
      with_items: "{{ mac_addresses_results['results'] }}"
+   - name: init the mac addresses list/name map
+     set_fact:
+       mac_with_name: {}
+   - name: Name the mac address
+     set_fact:
+       mac_with_name: "{{ mac_with_name|combine({item: {'macaddr': mac_addresses[index]}}) }}"
+     loop: "{{ all_vms['list_vms']|flatten(levels=1) }}"
+     loop_control:
+      index_var: index
    - debug:
-       var: mac_addresses
+      var: mac_with_name
+   - name: Init the controller list
+     set_fact:
+      masters: []
+   - name: Set the controller mac addresses
+     set_fact:
+      masters: "{{ masters + [item|combine(mac_with_name[item['name']])] }}"
+     loop: "{{ masters_tmpl|flatten(levels=1) }}"
+   - debug:
+      var: masters
+   - name: Init the compute list
+     set_fact:
+      workers: []
+   - name: Set the compute mac addresses
+     set_fact:
+      workers: "{{ workers + [item|combine(mac_with_name[item['name']])] }}"
+     loop: "{{ workers_tmpl|flatten(levels=1) }}"
+   - debug:
+      var: workers
+   - name: Set the bootstrap mac addresses
+     set_fact:
+      bootstrap: "{{ [bootstrap_tmpl|combine(mac_with_name['bootstrap'])] }}"
+   - debug:
+      var: bootstrap
+
 
 

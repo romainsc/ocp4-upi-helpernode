@@ -1,0 +1,36 @@
+---
+disk: vda
+helper:
+  name: "ocp4-aHelper"
+  ipaddr: "192.168.7.77"
+  networkifacename: "enp1s0"
+dns:
+  domain: "servideo.org"
+  clusterid: "ocp4"
+  forwarder1: "208.67.222.222"
+  forwarder2: "208.67.220.220"
+dhcp:
+  router: "192.168.7.1"
+  bcast: "192.168.7.255"
+  netmask: "255.255.255.0"
+  poolstart: "192.168.7.10"
+  poolend: "192.168.7.30"
+  ipid: "192.168.7.0"
+  netmaskid: "255.255.255.0"
+bootstrap_tmpl:
+  name: "bootstrap"
+  ipaddr: "192.168.7.20"
+masters_tmpl:
+  - name: "control1"
+    ipaddr: "192.168.7.21"
+  - name: "control2"
+    ipaddr: "192.168.7.22"
+  - name: "control3"
+    ipaddr: "192.168.7.23"
+workers_tmpl:
+  - name: "compute1"
+    ipaddr: "192.168.7.11"
+  - name: "compute2"
+    ipaddr: "192.168.7.12"
+  - name: "compute3"
+    ipaddr: "192.168.7.13"
