@@ -41,29 +41,14 @@
       index_var: index
    - debug:
       var: mac_with_name
-   - name: Init the controller list
-     set_fact:
-      masters: []
-   - name: Set the controller mac addresses
-     set_fact:
-      masters: "{{ masters + [item|combine(mac_with_name[item['name']])] }}"
-     loop: "{{ masters_tmpl|flatten(levels=1) }}"
-   - debug:
-      var: masters
-   - name: Init the compute list
-     set_fact:
-      workers: []
-   - name: Set the compute mac addresses
-     set_fact:
-      workers: "{{ workers + [item|combine(mac_with_name[item['name']])] }}"
-     loop: "{{ workers_tmpl|flatten(levels=1) }}"
-   - debug:
-      var: workers
-   - name: Set the bootstrap mac addresses
-     set_fact:
-      bootstrap: "{{ [bootstrap_tmpl|combine(mac_with_name['bootstrap'])] }}"
-   - debug:
-      var: bootstrap
+   - name: Write the mac config file
+     copy:
+      content: "{{ mac_with_name }}"
+      dest: mac_addresses_var.yml
+   - name: Fetch the config file
+     fetch:
+      src: mac_addresses_var.yml
+      dest: ../vars/mac_addresses.yml
+      flat: yes
 
-
-
+ 

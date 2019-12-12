@@ -1,12 +1,38 @@
 ---
 # Setup OCP4 Helper Node
 
-- hosts: all
+- hosts: helper
   vars_files:
     - ../vars/main.yml
+    - ../vars/mac_addresses.yml
+    - ../quickstart/vars_template.yaml
   handlers:
   - import_tasks: ../handlers/main.yml
   tasks:
+  - name: Get the mac addresses
+    set_fact:
+     mac_with_name: "{{ lookup('file', '../vars/mac_addresses.yml') }}"
+  - name: Init the controller list
+    set_fact:
+     masters: []
+  - name: Set the controller mac addresses
+    set_fact:
+     masters: "{{ masters + [item|combine(mac_with_name[item['name']])] }}"
+    loop: "{{ masters_tmpl|flatten(levels=1) }}"
+  - debug:
+     var: masters
+  - name: Init the compute list
+    set_fact:
+     workers: []
+  - name: Set the compute mac addresses
+    set_fact:
+     workers: "{{ workers + [item|combine(mac_with_name[item['name']])] }}"
+    loop: "{{ workers_tmpl|flatten(levels=1) }}"
+  - name: Set the bootstrap mac addresses
+    set_fact:
+     bootstrap: "{{ bootstrap_tmpl|combine(mac_with_name['bootstrap']) }}"
+  - debug:
+     var: bootstrap
 
   - name: Install needed packages
     yum:
@@ -17,7 +43,7 @@
         - httpd
         - vim
         - bash-completion
-        - libselinux-python
+        - python3-libselinux
         - podman
         - nfs-utils
       state: present
@@ -25,7 +51,7 @@
   - name: Install packages for DHCP/PXE install
     yum:
       name:
-        - dhcp
+        - dhcp-server
         - syslinux
         - tftp-server
       state: present
