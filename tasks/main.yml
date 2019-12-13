@@ -177,8 +177,8 @@
       path: /export
       state: directory
       mode: 0777
-      owner: nfsnobody
-      group: nfsnobody
+      owner: nobody
+      group: nobody
     notify:
       - restart nfs
 
@@ -298,8 +298,8 @@
       - httpd
       - rpcbind
       - nfs-server
-      - nfs-lock
-      - nfs-idmap
+      - rpc-statd
+      - nfs-idmapd
 
   - name: Starting DHCP/PXE services
     service:
