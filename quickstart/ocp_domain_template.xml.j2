@@ -11,14 +11,18 @@
   <os>
     <type arch="x86_64" machine="q35">hvm</type>
     <boot dev="hd"/>
-    <bootmenu enable="yes"/>
+    <boot dev="network"/>
   </os>
   <features>
     <acpi/>
     <apic/>
     <vmport state="off"/>
   </features>
-  <cpu mode="host-model"/>
+  <cpu mode="host-model">
+     <numa>
+	     <cell id='0' cpus='0-{{ item.vcpu - 1 }}' memory='{{ item.memory }}' unit='GB'/>
+     </numa>  
+  </cpu>
   <clock offset="utc">
     <timer name="rtc" tickpolicy="catchup"/>
     <timer name="pit" tickpolicy="delay"/>
