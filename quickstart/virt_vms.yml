@@ -16,6 +16,8 @@
       lv: '{{ item.name }}_vol'
       size: "{{ item.disk_size }}"   
      with_items: "{{ vms }}"
+   - name: Refresh storage pool
+     command: virsh pool-refresh "{{ vgname }}"
    - name: Define ocp cluster VMs
      virt:
       command: define
