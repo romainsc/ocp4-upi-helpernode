@@ -1,0 +1,19 @@
+---
+- import_playbook: stop_virt_vms.yml
+- hosts: host
+  vars_files:
+    - vault.yaml
+    - virt_vms_list.yml
+  vars:
+   vgname: virtual_machines_vg
+  tasks:
+   - name: Undefine ocp cluster VMs
+     virt:
+      command: undefine
+      name: "{{ item.name }}"
+     with_items: "{{ vms }}"
+   - name: List all VMs
+     virt:
+       command: list_vms
+ 
+

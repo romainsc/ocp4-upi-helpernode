@@ -1,0 +1,13 @@
+---
+- hosts: host
+  vars_files:
+    - vault.yaml
+    - virt_vms_list.yml
+  tasks:
+   - name: Start ocp cluster VMs
+     virt:
+      state: running
+      name: "{{ item.name }}"
+     with_items: "{{ vms }}"
+ 
+
