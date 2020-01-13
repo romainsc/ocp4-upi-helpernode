@@ -1,6 +1,6 @@
 ---
 vms:
-  - name: bastion
+  - name: bootstrap
     maxmemory: 16
     memory: 8
     vcpu: 4
@@ -35,7 +35,7 @@ vms:
     memory: 2
     vcpu: 2
     disk_size: 120g
-  - name: bootstrap
+  - name: bastion
     maxmemory: 16
     memory: 8
     vcpu: 4
