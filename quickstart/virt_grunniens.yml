@@ -1,0 +1,43 @@
+---
+- hosts: host
+  vars_files:
+    - vault.yaml
+  vars:
+   vgname: virtual_machines_vg
+   vm_volume: grunniens_vol
+   vm_mail_volume: grunniens_mail_vol
+   vm_domain: grunniens
+  tasks:
+   - name: Copy kickstart
+     copy:
+      src: grunniens-ks.cfg
+      dest: /tmp/grunniens-ks.cfg
+   - name: List all VMs
+     virt:
+       command: list_vms
+     register: all_vms
+   - name: Create logical volume for root
+     lvol:
+      vg: '{{ vgname }}'
+      lv: '{{ vm_volume }}'
+      size: 18g   
+   - name: Create logical volume for mails
+     lvol:
+      vg: '{{ vgname }}'
+      lv: '{{ vm_mail_volume }}'
+      size: 150g   
+   - name: Refresh storage pool
+     command: virsh pool-refresh "{{ vgname }}"
+   - name: Create helper VM
+     #OK#command: virt-install --name "{{ vm_domain }}" --vcpus 2 --ram 4096 --disk vol={{ vgname }}/{{ vm_volume }},bus=virtio --os-variant rhel7.6 --network network=grunniens,model=virtio --location /var/lib/libvirt/images/rhel-server-7.7-x86_64-dvd.iso  --noautoconsole --check all=off  
+     #command: virt-install --name "{{ vm_domain }}" --vcpus 2 --ram 4096 --disk vol={{ vgname }}/{{ vm_volume }},bus=virtio --os-variant rhel8.0 --network network=grunniens,model=virtio --boot menu=on --location /var/lib/libvirt/images/rhel-8.0-x86_64-dvd.iso --noautoconsole --check all=off --extra-args ro
+     command: virt-install --name "{{ vm_domain }}" --vcpus 2 --ram 4096 --disk vol={{ vgname }}/{{ vm_volume }},bus=virtio,format=raw --disk vol={{ vgname }}/{{ vm_mail_volume }},bus=virtio,format=raw --os-variant rhel8.0 --network network=grunniens,model=virtio --boot menu=on --location /var/lib/libvirt/images/rhel-8.0-x86_64-dvd.iso --initrd-inject /tmp/grunniens-ks.cfg --extra-args "inst.ks=file:/grunniens-ks.cfg ro" --noautoconsole --check all=off --wait -1 --noreboot
+     when: " vm_domain not in all_vms.list_vms"
+   - name: Run helper VM
+     virt:
+      name: "{{ vm_domain }}"
+      state: running
+      autostart: yes
+
+ 
+
